@@ -2,6 +2,7 @@ var express = require('express'),
     app = express(),
     bodyParser = require('body-parser'),
     engines = require('consolidate'),
+    mongodb = require('mongodb'),
     MongoClient = require('mongodb').MongoClient,
     ObjectID = require('mongodb').ObjectID,
     fs = require('fs');
@@ -18,6 +19,7 @@ var coverImgNotFound = fs.readFileSync(__dirname +'/public/img/No_Cover.jpg');
 MongoClient.connect('mongodb://localhost:27017/elib', function(err, db) {
 
     console.log("Successfully connected to MongoDB.");
+    var bucket = new mongodb.GridFSBucket(db);
     var vlibs = [];
 
     db.collection('library').distinct('vlibs',function(err, docs) {
@@ -42,6 +44,10 @@ MongoClient.connect('mongodb://localhost:27017/elib', function(err, db) {
         db.collection('library').find(query).toArray(function(err, docs) {
             res.render('templates/documents', { 'documents': docs, 'vlibs': vlibs } );
         });
+    });
+
+    app.get('/file/:id', function(req,res){
+        bucket.openDownloadStream 
     });
     
     app.get('/', function(req,res){
